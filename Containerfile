@@ -45,4 +45,4 @@ WORKDIR /opt/app-root/src
 EXPOSE 8888
 
 # Command to run the application
-CMD ["python3", "-m", "uvicorn", "docling_serve.app:create_app", "--factory", "--host", "0.0.0.0", "--port", "8888"]
+CMD ["env", "PYTHONPATH=/opt/app-root/bin", "python3", "-m", "uvicorn", "docling_serve.app:create_app", "--factory", "--host", "0.0.0.0", "--port", "8888"]
