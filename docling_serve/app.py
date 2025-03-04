@@ -122,9 +122,9 @@ def create_app():
             app = gr.mount_gradio_app(
                 app,
                 gradio_ui,
-                path="/",
+                path="/ui",
                 allowed_paths=["./logo.png", tmp_output_dir],
-                root_path="/",
+                root_path="/ui",
             )
         except ImportError:
             _log.warning(
