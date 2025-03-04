@@ -22,8 +22,8 @@ ENV PYTHONUNBUFFERED=1 \
     LC_ALL=en_US.UTF-8 \
     LANG=en_US.UTF-8 \
     PIP_NO_CACHE_DIR=1 \
-    HOME=/opt/app-root/bin \
-    PATH=/opt/app-root/bin:$PATH
+    HOME=/opt/app-root/src \
+    PATH=/opt/app-root/src:$PATH
 
 # Switch to non-root user
 USER 1001
@@ -34,8 +34,6 @@ WORKDIR /opt/app-root/bin
 # Copy application code
 COPY --chown=1001:0 . .
 
-RUN ls -l /opt/app-root/bin
-
 # Install dependencies
 RUN pip3 install --no-cache-dir -r requirements.txt
 
@@ -45,4 +43,4 @@ WORKDIR /opt/app-root/src
 EXPOSE 8888
 
 # Command to run the application
-CMD ["env", "PYTHONPATH=/opt/app-root/bin", "python3", "-m", "uvicorn", "docling_serve.app:create_app", "--factory", "--host", "0.0.0.0", "--port", "8888"]
+CMD ["python3", "-m", "uvicorn", "--app-dir", "/opt/app-root/bin", "docling_serve.app:create_app", "--factory", "--host", "0.0.0.0", "--port", "8888"]
