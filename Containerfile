@@ -2,17 +2,8 @@ FROM registry.access.redhat.com/ubi9/python-311:9.5
 
 USER 0
 
-# Install Python and required dependencies
-# RUN dnf -y update --setopt=tsflags=nodocs && \
-#     dnf -y install python3 python3-pip && \
-#     dnf clean all && \
-#     mkdir -p /opt/app-root/bin/docling-serve && \
-#     mkdir -p /opt/app-root/bin && \
-#     chown -R 1001:0 /opt/app-root
-
 RUN dnf -y update --setopt=tsflags=nodocs && \
     dnf clean all && \
-    mkdir -p /opt/app-root/bin/docling_serve && \
     mkdir -p /opt/app-root/bin && \
     chown -R 1001:0 /opt/app-root
 

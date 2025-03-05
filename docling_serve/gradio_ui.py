@@ -1,4 +1,3 @@
-import importlib
 import json
 import logging
 import os
@@ -41,9 +40,8 @@ css = """
     padding-top: 5px;
     line-height: 0;
 }
-.title-text h1 > p, .title-text p {
-    margin-top: 0px !important;
-    margin-bottom: 2px !important;
+.title-text h1 {
+    margin-top: 5mm !important;
 }
 #custom-container {
     border: 0.909091px solid;

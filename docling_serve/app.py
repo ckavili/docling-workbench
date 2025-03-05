@@ -3,27 +3,14 @@ import tempfile
 from contextlib import asynccontextmanager
 from io import BytesIO
 from pathlib import Path
-from typing import Annotated, Any, Dict, List, Optional, Union
 import os
 from datetime import datetime
 
-# from docling.datamodel.base_models import DocumentStream, InputFormat
-# from docling.document_converter import DocumentConverter
-from fastapi import BackgroundTasks, FastAPI, UploadFile
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 
-# from docling_serve.docling_conversion import (
-#     ConvertDocumentFileSourcesRequest,
-#     ConvertDocumentsOptions,
-#     ConvertDocumentsRequest,
-#     convert_documents,
-#     converters,
-#     get_pdf_pipeline_opts,
-# )
-# from docling_serve.helper_functions import FormDepends
-# from docling_serve.response_preparation import ConvertDocumentResponse, process_results
 from docling_serve.settings import docling_serve_settings
 
 # Set enable_ui to True
@@ -60,29 +47,6 @@ for handler in root_logger.handlers:  # Iterate through existing handlers
 
 _log = logging.getLogger(__name__)
 
-
-# Context manager to initialize and clean up the lifespan of the FastAPI app
-# @asynccontextmanager
-# async def lifespan(app: FastAPI):
-
-#     # Converter with default options
-#     pdf_format_option, options_hash = get_pdf_pipeline_opts(ConvertDocumentsOptions())
-#     converters[options_hash] = DocumentConverter(
-#         format_options={
-#             InputFormat.PDF: pdf_format_option,
-#             InputFormat.IMAGE: pdf_format_option,
-#         }
-#     )
-
-#     converters[options_hash].initialize_pipeline(InputFormat.PDF)
-
-#     yield
-
-#     converters.clear()
-    # if WITH_UI:
-    #     gradio_ui.close()
-
-
 ##################################
 # App creation and configuration #
 ##################################
@@ -109,16 +73,11 @@ def create_app():
     # Mount the Gradio app
     if docling_serve_settings.enable_ui:
 
-        # try:
         import gradio as gr
-        # import pdb
-        # pdb.set_trace()
         from docling_serve.gradio_ui import ui as gradio_ui
-        # from gradio_ui import ui as gradio_ui
 
         tmp_output_dir = Path(tempfile.mkdtemp())
         gradio_ui.gradio_output_dir = tmp_output_dir
-        # gradio_ui.set_config(host, auth_token)
         app = gr.mount_gradio_app(
             app,
             gradio_ui,
@@ -126,13 +85,6 @@ def create_app():
             allowed_paths=["./logo.png", tmp_output_dir],
             root_path="/ui",
         )
-        # except ImportError as e:
-        #     print(e)
-        #     _log.warning(
-        #         "Docling Serve enable_ui is activated, but gradio is not installed. "
-        #         "Install it with `pip install docling-serve[ui]` "
-        #         "or `pip install gradio`"
-        #     )
 
     #############################
     # API Endpoints definitions #
@@ -249,81 +201,5 @@ def create_app():
         @app.get(f"{nb_prefix}", include_in_schema=False)
         async def prefixed_root_redirect():
             return RedirectResponse(url="/")
-
-    # # Convert a document from URL(s)
-    # @app.post(
-    #     "/v1alpha/convert/source",
-    #     response_model=ConvertDocumentResponse,
-    #     responses={
-    #         200: {
-    #             "content": {"application/zip": {}},
-    #             # "description": "Return the JSON item or an image.",
-    #         }
-    #     },
-    # )
-    # def process_url(
-    #     background_tasks: BackgroundTasks, conversion_request: ConvertDocumentsRequest
-    # ):
-    #     sources: List[Union[str, DocumentStream]] = []
-    #     headers: Optional[Dict[str, Any]] = None
-    #     if isinstance(conversion_request, ConvertDocumentFileSourcesRequest):
-    #         for file_source in conversion_request.file_sources:
-    #             sources.append(file_source.to_document_stream())
-    #     else:
-    #         for http_source in conversion_request.http_sources:
-    #             sources.append(http_source.url)
-    #             if headers is None and http_source.headers:
-    #                 headers = http_source.headers
-
-    #     # Note: results are only an iterator->lazy evaluation
-    #     results = convert_documents(
-    #         sources=sources, options=conversion_request.options, headers=headers
-    #     )
-
-    #     # The real processing will happen here
-    #     response = process_results(
-    #         background_tasks=background_tasks,
-    #         conversion_options=conversion_request.options,
-    #         conv_results=results,
-    #     )
-
-    #     return response
-
-    # # Convert a document from file(s)
-    # @app.post(
-    #     "/v1alpha/convert/file",
-    #     response_model=ConvertDocumentResponse,
-    #     responses={
-    #         200: {
-    #             "content": {"application/zip": {}},
-    #         }
-    #     },
-    # )
-    # async def process_file(
-    #     background_tasks: BackgroundTasks,
-    #     files: List[UploadFile],
-    #     options: Annotated[
-    #         ConvertDocumentsOptions, FormDepends(ConvertDocumentsOptions)
-    #     ],
-    # ):
-
-    #     _log.info(f"Received {len(files)} files for processing.")
-
-    #     # Load the uploaded files to Docling DocumentStream
-    #     file_sources = []
-    #     for file in files:
-    #         buf = BytesIO(file.file.read())
-    #         name = file.filename if file.filename else "file.pdf"
-    #         file_sources.append(DocumentStream(name=name, stream=buf))
-
-    #     results = convert_documents(sources=file_sources, options=options)
-
-    #     response = process_results(
-    #         background_tasks=background_tasks,
-    #         conversion_options=options,
-    #         conv_results=results,
-    #     )
-
-    #     return response
 
     return app
