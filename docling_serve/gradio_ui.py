@@ -365,8 +365,8 @@ with gr.Blocks(
         # Title
         with gr.Column(scale=1, min_width=200):
             gr.Markdown(
-                f"# Docling Serve \n(docling version: "
-                f"{importlib.metadata.version('docling')})",
+                f"# Docling Serve",
+                # f"{importlib.metadata.version('docling')})",
                 elem_id="title",
                 elem_classes=["title-text"],
             )
